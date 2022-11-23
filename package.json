@@ -1,0 +1,15 @@
+{
+	"type": "module",
+	"name": "@intrnl/chunked-uint8-iterator",
+	"description": "Create chunked iterator from Uint8Array readable streams",
+	"version": "0.1.0",
+	"author": "intrnl",
+	"license": "MIT",
+	"repository": {
+		"url": "https://codeberg.org/intrnl/chunked-uint8-iterator"
+	},
+	"files": [
+		"src/"
+	],
+	"main": "src/index.js"
+}
