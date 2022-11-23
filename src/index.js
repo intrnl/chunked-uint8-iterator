@@ -4,7 +4,7 @@
  * @param {number} size
  * @returns {AsyncGenerator<Uint8Array, null>}
  */
-function* chunked (readable, size = 512) {
+async function* chunked (readable, size = 512) {
 	/** @type {AsyncIterableIterator<Uint8Array>} */
 	let iterator = createStreamIterator(readable);
 
