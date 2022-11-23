@@ -82,7 +82,9 @@ export function createStreamIterator (stream) {
 		},
 		return () {
 			reader.releaseLock();
-			return {};
+		},
+		throw () {
+			reader.releaseLock();
 		},
 	};
 }
