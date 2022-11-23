@@ -2,7 +2,7 @@
 	"type": "module",
 	"name": "@intrnl/chunked-uint8-iterator",
 	"description": "Create chunked iterator from Uint8Array readable streams",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"author": "intrnl",
 	"license": "MIT",
 	"repository": {
