@@ -68,7 +68,7 @@ function concat (bytes, chunks) {
 export function createStreamIterator (stream) {
 	// return if browser already supports async iterator in stream
 	if (stream[Symbol.asyncIterator]) {
-		return stream;
+		return stream[Symbol.asyncIterator]();
 	}
 
 	let reader = stream.getReader();
