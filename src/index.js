@@ -45,7 +45,7 @@ export default chunked;
  * @param {Uint8Array[]} chunks
  * @returns {Uint8Array}
  */
-function concat (bytes, chunks) {
+export function concat (bytes, chunks) {
 	let result = new Uint8Array(bytes);
 	let offset = 0;
 
