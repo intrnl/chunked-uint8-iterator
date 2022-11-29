@@ -68,20 +68,29 @@ export function createStreamIterator (stream) {
 		return stream[Symbol.asyncIterator]();
 	}
 
-	let reader = stream.getReader();
+	/** @type {ReadableStreamDefaultReader<T> | undefined} */
+	let reader;
 
 	return {
 		[Symbol.asyncIterator] () {
 			return this;
 		},
 		next () {
+			if (!reader) {
+				reader = stream.getReader();
+			}
+
 			return reader.read();
 		},
 		return () {
-			reader.releaseLock();
+			if (reader) {
+				reader.releaseLock();
+			}
 		},
 		throw () {
-			reader.releaseLock();
+			if (reader) {
+				reader.releaseLock();
+			}
 		},
 	};
 }
