@@ -1,18 +1,15 @@
 /**
- * Creates a chunked iterator from Uint8Array readable stream
- * @param {ReadableStream<Uint8Array>} readable
+ * Creates a chunked iterator from Uint8Array iterables
+ * @param {Iterable<Uint8Array> | AsyncIterable<Uint8Array>} iterable
  * @param {number} size
  * @returns {AsyncGenerator<Uint8Array, null>}
  */
-async function* chunked (readable, size = 512) {
-	/** @type {AsyncIterableIterator<Uint8Array>} */
-	let iterator = createStreamIterator(readable);
-
+async function* chunked (iterable, size = 512) {
 	/** @type {Uint8Array[]} */
 	let chunks = [];
 	let bytes = 0;
 
-	for await (let value of iterator) {
+	for await (let value of iterable) {
 		bytes += value.byteLength;
 		chunks.push(value);
 
