@@ -13,6 +13,18 @@ for (let values of chunked(stream)) {
 }
 ```
 
+This will default to yielding 512 bytes of chunks at a time, you can configure
+this by passing a number as the second argument.
+
+```js
+for (let values of chunked(stream, 1024)) {
+  // ...
+}
+```
+
+If the iterable ends with less than the given chunk size, it will yield the
+remaining bytes as is without padding.
+
 ## Using web streams
 
 Your web browser might not support using ReadableStream directly as an async
