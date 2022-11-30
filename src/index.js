@@ -1,38 +1,83 @@
 /**
  * Creates a chunked iterator from Uint8Array iterables
  * @param {Iterable<Uint8Array> | AsyncIterable<Uint8Array>} iterable
- * @param {number} size
- * @returns {AsyncGenerator<Uint8Array, null>}
+ * @param {number} desiredSize
+ * @returns {AsyncIterableIterator<Uint8Array, null>}
  */
-async function* chunked (iterable, size = 512) {
-	/** @type {Uint8Array[]} */
-	let chunks = [];
-	let bytes = 0;
+function chunked (iterable, desiredSize = 512) {
+	let iterator = Symbol.asyncIterator in iterable
+		? iterable[Symbol.asyncIterator]()
+		: iterable[Symbol.iterator]();
 
-	for await (let value of iterable) {
-		bytes += value.byteLength;
-		chunks.push(value);
+	let pages = [];
+	let buffer = new Uint8Array(0);
 
-		if (bytes >= size) {
-			let buf = concat(bytes, chunks);
-			let offset = 0;
+	let ptr = 0;
+	let size = 0;
 
-			while (bytes >= size) {
-				yield buf.slice(offset, offset + size);
+	return {
+		[Symbol.asyncIterator] () {
+			return this;
+		},
 
-				bytes -= size;
-				offset += size;
+		async next () {
+			while (size < desiredSize) {
+				let result = await iterator.next();
+
+				if (result.done) {
+					break;
+				}
+
+				let chunk = result.value;
+				let length = chunk.byteLength;
+
+				size += length;
+				pages.push(chunk);
 			}
 
-			chunks = [buf.slice(offset, buf.length)];
-		}
-	}
+			if (size < 1) {
+				return { done: true, value: null };
+			}
 
-	if (bytes > 0) {
-		yield concat(bytes, chunks);
-	}
+			if (size < desiredSize) {
+				let copy = buffer.subarray(ptr, ptr + size);
+				size = 0;
 
-	return null;
+				return { done: false, value: copy };
+			}
+
+			let block = new Uint8Array(desiredSize);
+			let unwritten = desiredSize;
+
+			while (unwritten) {
+				let remaining = buffer.byteLength - ptr;
+				let written = Math.min(unwritten, remaining);
+
+				block.set(buffer.subarray(ptr, ptr + written), desiredSize - unwritten);
+
+				ptr += written;
+				unwritten -= written;
+				size -= written;
+
+				if (ptr >= buffer.byteLength) {
+					buffer = pages.shift();
+					ptr = 0;
+				}
+			}
+
+			return { done: false, value: block };
+		},
+		return (value) {
+			if ('return' in iterator) {
+				iterator.return(value);
+			}
+		},
+		throw (err) {
+			if ('throw' in iterator) {
+				iterator.throw(err);
+			}
+		},
+	};
 }
 
 export default chunked;
