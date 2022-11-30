@@ -40,7 +40,7 @@ function chunked (iterable, desiredSize = 512) {
 			}
 
 			if (size < desiredSize) {
-				let copy = buffer.subarray(ptr, ptr + size);
+				let copy = buffer.slice(ptr, ptr + size);
 				size = 0;
 
 				return { done: false, value: copy };
