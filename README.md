@@ -25,19 +25,33 @@ for (let values of chunked(stream, 1024)) {
 If the iterable ends with less than the given chunk size, it will yield the
 remaining bytes as is without padding.
 
-## Using web streams
+## Working with Web Streams
 
-Your web browser might not support using ReadableStream directly as an async
-iterable, if that's the case, this library provides `createStreamIterator`
-which you can pass directly into `chunked`.
-
+Unfortunately browsers hasn't implemented using ReadableStream directly as an
+async iterator, in the meantime, you could use this to convert them into one.
 
 ```js
-import chunked, { createStreamIterator } from '@intrnl/chunked-uint8-iterator';
+function createStreamIterator (stream) {
+	// return if browser already supports async iterator in stream
+	if (Symbol.asyncIterator in stream) {
+		return stream[Symbol.asyncIterator]();
+	}
 
-let stream = file.stream();
+	let reader = stream.getReader();
 
-for (let chunks of chunked(createStreamIterator(stream))) {
-  // ...
+	return {
+		[Symbol.asyncIterator] () {
+			return this;
+		},
+		next () {
+			return reader.read();
+		},
+		return () {
+			reader.releaseLock();
+		},
+		throw () {
+			reader.releaseLock();
+		},
+	};
 }
 ```
