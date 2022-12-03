@@ -39,15 +39,10 @@ function chunked (iterable, desiredSize = 512) {
 				return { done: true, value: null };
 			}
 
-			if (size < desiredSize) {
-				let copy = buffer.slice(ptr, ptr + size);
-				size = 0;
-
-				return { done: false, value: copy };
-			}
-
-			let block = new Uint8Array(desiredSize);
-			let unwritten = desiredSize;
+			// we won't have the desired size if we break away from the loop above,
+			// and we don't want to pad this, so declare the appropriate amount.
+			let unwritten = size < desiredSize ? length : desiredSize;
+			let block = new Uint8Array(unwritten);
 
 			while (unwritten) {
 				let remaining = buffer.byteLength - ptr;
